@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="menu_item_placeholders">
+        <item >Menu Item 1</item>
+        <item >Menu Item 2</item>
+        <item >Menu Item 3</item>
+    </string-array>
+    <string-array name="pref_modbus_data_type_selection_entries">
+        <item >Input Coils (Read-Only Bits)</item>
+        <item >Holding Coils (Read-Write Bits)</item>
+        <item >Input Registers (Read-Only Words)</item>
+        <item >Holding Registers (Read-Write Words)</item>
+    </string-array>
+    <string-array name="pref_modbus_data_type_selection_entry_values">
+        <item >0</item>
+        <item >1</item>
+        <item >3</item>
+        <item >4</item>
+    </string-array>
+
+</resources>

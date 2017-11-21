@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+
+
+    <PreferenceCategory android:title="@string/pref_title_connection_category">
+        <EditTextPreference
+            android:defaultValue="192.168.1.6"
+            android:key="edit_text_preference_1"
+            android:selectAllOnFocus="true"
+            android:singleLine="true"
+            android:title="@string/pref_title_ipaddress_hostname" />
+        <com.ambatosystem.mymodbus.preferences.IntEditTextPreferences
+            android:defaultValue="502"
+            android:key="pref_key_modbus_port"
+            android:maxLength="8"
+            android:numeric="integer"
+            android:selectAllOnFocus="true"
+            android:singleLine="true"
+            android:title="@string/pref_title_modbus_port" />
+    </PreferenceCategory>
+    <PreferenceCategory
+        android:title="@string/pref_title_basic_modbus_category"
+        android:key="pref_key_basic_modbus_settings">
+        <ListPreference
+            android:key="pref_key_modbus_data_type"
+            android:title="Tipo de dato modbus"
+            android:dialogTitle="Tipo de dato"
+            android:entries="@array/pref_modbus_data_type_selection_entries"
+            android:entryValues="@array/pref_modbus_data_type_selection_entry_values"
+            android:defaultValue="@string/pref_modbus_data_type_default_value" />
+        <com.ambatosystem.mymodbus.preferences.IntEditTextPreferences
+            android:key="pref_key_modbus_data_offset"
+            android:title="@string/pref_title_modbus_data_offset"
+            android:defaultValue="0"
+            android:numeric="integer"
+            android:maxLength="5"/>
+        <com.ambatosystem.mymodbus.preferences.IntEditTextPreferences
+            android:key="pref_key_modbus_data_length"
+            android:title="@string/pref_title_modbus_data_length"
+            android:defaultValue="1"
+            android:numeric="integer"
+            android:maxLength="4"/>
+    </PreferenceCategory>
+</PreferenceScreen>
