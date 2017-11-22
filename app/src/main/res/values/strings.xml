@@ -35,5 +35,10 @@
 
         <string name="drawer_open_title">Connection/Modbus Parameters</string>
         <string name="drawer_closed_title">Mobile Modbus</string>
+		
 
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
+
+    <string name="action_settings">Settings</string>
     </resources>
