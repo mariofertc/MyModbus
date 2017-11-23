@@ -41,4 +41,5 @@ dependencies {
     androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.1'
     //implementation "com.infiniteautomation:modbus4j:3.0.3"
     implementation project(':mod')
+    implementation 'com.github.anastr:speedviewlib:1.1.6'
 }

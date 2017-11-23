@@ -323,8 +323,14 @@ public class MyService extends Service {
 
                     //handler.postDelayed(this, 5000);
                 }
+                catch(InterruptedException ex) {
+                    System.err.println("An InterruptedException was caught: " + ex.getMessage());
+                    //Log.e("yo"+getClass().getSimpleName(),getClass().getSimpleName());
+                    Log.e("yo"+getClass().getSimpleName(), "Error no controlado");
+                    mConnected = false;
+                }
                 catch (Exception e) {
-                    Log.e( getClass().getSimpleName(), e.getMessage() );
+                    Log.e( getClass().getSimpleName(), "Error no controlado" );
                     mConnected = false;
                 }
             }

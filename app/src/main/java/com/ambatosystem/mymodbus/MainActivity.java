@@ -38,6 +38,7 @@ import com.ambatosystem.mymodbus.MMConstants;
 import com.ambatosystem.mymodbus.R;
 import com.ambatosystem.mymodbus.ui.fragments.BasicSlidingMenuFragment;
 import com.ambatosystem.mymodbus.ui.fragments.ModbusDataViewFragment;
+import com.github.anastr.speedviewlib.SpeedView;
 import com.serotonin.modbus4j.BatchResults;
 
 import java.util.ArrayList;
@@ -114,6 +115,7 @@ public class MainActivity extends AppCompatActivity
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
         intent = new Intent(this,MyService.class);
+        //speedometer.
     }
 
     @Override
@@ -139,30 +141,11 @@ public class MainActivity extends AppCompatActivity
     };
 
     private void updateUI(Intent intent) {
-        //ArrayList<String> response = intent.getStringArrayListExtra("response");
-
-
-//        Log.d(TAG, response.get(0));
-        /*for (ArrayList<String> innerList : response) {
-            Log.d(TAG, innerList.get(0))
-
-        }*/
-        //Log.d(TAG, intent.getStringExtra("63"));
-        //(TextView) findViewById(R.id.modbus_value).setText();
-        /*TextView txtModbusValue = (TextView) findViewById(R.id.modbus_value);
-        txtModbusValue.setText(intent.getStringExtra("63"));*/
         TextView txtModbusValueInicial = (TextView) findViewById(R.id.modbus_value_inicial);
         txtModbusValueInicial.setText(intent.getStringExtra("63"));
+        SpeedView speedometer = (SpeedView) findViewById(R.id.speedView);
+        speedometer.speedTo(Float.parseFloat(intent.getStringExtra("63")),500);
 
-        /*TextView txtView = (TextView) ((Activity)context).findViewById(R.id.text);
-        txtView.setText("Hello");*/
-
-        /*TextView txtModbusValue = (TextView) findViewById(R.id.modbus_value);
-        txtModbusValue.setText(intent.getStringExtra("63"));*/
-
-        //TextView txtCounter = (TextView) findViewById(R.id.txtCounter);
-        //txtDateTime.setText(time);
-        //txtCounter.setText(counter);
     }
 
     @Override
@@ -211,9 +194,7 @@ public class MainActivity extends AppCompatActivity
         Fragment fragment = null;
         String title = getString(R.string.app_name);
 
-        if (id == R.id.nav_camera) {
-            // Handle the camera action
-        } else if (id == R.id.nav_gallery) {
+        if (id == R.id.nav_gallery) {
             /*fragment = new ModbusDataViewFragment();
             FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
             ft.replace(R.id.drawer_layout, fragment);
@@ -235,18 +216,9 @@ public class MainActivity extends AppCompatActivity
             //fragment.getFragmentManager();
             //fragment = HomeFragment.getFragInstance();
             //fragment = ModbusDataViewFragment.getFragInstance();
-
-
-        } else if (id == R.id.nav_slideshow) {
-
-        } else if (id == R.id.nav_manage) {
-
-        } else if (id == R.id.nav_share) {
-
-        } else if (id == R.id.nav_send) {
-
+        } else if (id == R.id.nav_camera) {
+            //Quitar los fragmentos
         }
-
         //FragmentTransaction transaction = fragmentManager.beginTransaction();
         /*FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();;
         transaction.addToBackStack(null);
