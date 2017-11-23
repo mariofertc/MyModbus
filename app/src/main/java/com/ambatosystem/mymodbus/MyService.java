@@ -2,6 +2,7 @@ package com.ambatosystem.mymodbus;
 
 import android.app.Service;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.IBinder;
 import android.os.Looper;
 import android.os.Message;
@@ -33,6 +34,10 @@ public class MyService extends Service {
 //    ModbusFactory modbusFactory = new ModbusFactory();
 //    ModbusMaster master;
     Thread threadModbus;
+    public ModbusFactory modbusFactory;
+    public ModbusMaster master;
+
+    SharedPreferences prefs = null;
     /*public MyService() {
         super();
     }*/
@@ -66,10 +71,8 @@ public class MyService extends Service {
     public void onCreate() {
         // start new thread and you your work there
         Log.d("TAG", "Service created.");
-        mMyServiceRunnable = new MyServiceRunnable();
-        threadModbus = new Thread(mMyServiceRunnable);
-        threadModbus.start();
-        super.onCreate();
+        prefs = getSharedPreferences("com.ambatosystem.mymodbus", MODE_PRIVATE);
+        createPool();
 
         /*mMyServiceRunnable = new MyServiceRunnable();
         timerHandler.postDelayed(mMyServiceRunnable, 5000);*/
@@ -113,7 +116,13 @@ public class MyService extends Service {
     @Override
     public void onStart(Intent intent, int startId) {
         super.onStart(intent, startId);
-        Log.d("TAG", "Service started.");
+        if(prefs.getBoolean("firstrun", true)) {
+            Log.d("TAG", "Service started. 1rst, nothing to do.");
+            prefs.edit().putBoolean("firstrun", false).commit();
+        }else{
+            Log.d("TAG", "Service started. more than one, connect Pool.");
+            createPool();
+        }
     }
 
     @Override
@@ -123,6 +132,30 @@ public class MyService extends Service {
         //new Thread(mMyServiceRunnable).stop();
         super.onDestroy();
         // The service is no longer used and is being destroyed
+    }
+    public void createPool(){
+        if(mMyServiceRunnable == null)
+            mMyServiceRunnable = new MyServiceRunnable();
+        threadModbus = new Thread(mMyServiceRunnable);
+        threadModbus.start();
+        super.onCreate();
+    }
+
+    public void createConnection(){
+        Log.d("TAG", "Creating Modbus Connection.");
+        IpParameters tcpParameters = new IpParameters();
+        //tcpParameters.setHost("172.16.5.194");
+        tcpParameters.setHost("192.168.1.6");
+        tcpParameters.setPort(502);
+
+        if(master != null)
+            master.destroy();
+        if(modbusFactory == null)
+            modbusFactory = new ModbusFactory();
+        //ModbusMaster master = modbusFactory.createTcpMaster(tcpParameters, true);
+
+        master = modbusFactory.createTcpMaster(tcpParameters, true);
+
     }
 
     public void closeConnection(){
@@ -151,17 +184,13 @@ public class MyService extends Service {
             //  the user selection of modbus connection type.
 
             Log.d("TAG", "Connection Started.");
-            IpParameters tcpParameters = new IpParameters();
-            tcpParameters.setHost("172.16.5.194");
-            tcpParameters.setPort(502);
 
-            ModbusFactory modbusFactory = new ModbusFactory();
-            ModbusMaster master = modbusFactory.createTcpMaster(tcpParameters, true);
             // End of parameters that need to be abstracted somewhere better
 
             if (!mConnected) {
                 try {
-                      Log.d("TAG", "Connecting with modbus.");
+                      createConnection();
+                      Log.d("TAG", "Send connection with modbus.");
                       master.init();
                 }
                 catch (Exception e) {
