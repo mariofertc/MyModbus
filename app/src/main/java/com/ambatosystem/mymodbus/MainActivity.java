@@ -1,11 +1,15 @@
 package com.ambatosystem.mymodbus;
+
 import android.app.Fragment;
 import android.app.FragmentManager;
 import android.app.FragmentTransaction;
 //import android.support.v4.app.FragmentManager;
 //import android.support.v4.app.Fragment;
 //import android.support.v4.app.FragmentTransaction;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
@@ -26,6 +30,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.TextView;
 //import android.widget.Toast;
 
 //import com.ambatosystem.mymodbus.ui.fragments.ModbusDataViewFragment;
@@ -33,8 +38,9 @@ import com.ambatosystem.mymodbus.MMConstants;
 import com.ambatosystem.mymodbus.R;
 import com.ambatosystem.mymodbus.ui.fragments.BasicSlidingMenuFragment;
 import com.ambatosystem.mymodbus.ui.fragments.ModbusDataViewFragment;
+import com.serotonin.modbus4j.BatchResults;
 
-
+import java.util.ArrayList;
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
@@ -56,6 +62,7 @@ public class MainActivity extends AppCompatActivity
 
     private CharSequence mDrawerTitle = "Connection Options";
     private CharSequence mTitle = "Mobile Modbus";
+    Intent intent;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -106,6 +113,56 @@ public class MainActivity extends AppCompatActivity
 
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
+        intent = new Intent(this,MyService.class);
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        startService(intent);
+        registerReceiver(broadcastReceiver, new IntentFilter(MyService.BROADCAST_ACTION));
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        unregisterReceiver(broadcastReceiver);
+        stopService(intent);
+    }
+
+    private BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            //Log.e(TAG, "package info not found.");
+            updateUI(intent);
+        }
+    };
+
+    private void updateUI(Intent intent) {
+        //ArrayList<String> response = intent.getStringArrayListExtra("response");
+
+
+//        Log.d(TAG, response.get(0));
+        /*for (ArrayList<String> innerList : response) {
+            Log.d(TAG, innerList.get(0))
+
+        }*/
+        //Log.d(TAG, intent.getStringExtra("63"));
+        //(TextView) findViewById(R.id.modbus_value).setText();
+        /*TextView txtModbusValue = (TextView) findViewById(R.id.modbus_value);
+        txtModbusValue.setText(intent.getStringExtra("63"));*/
+        TextView txtModbusValueInicial = (TextView) findViewById(R.id.modbus_value_inicial);
+        txtModbusValueInicial.setText(intent.getStringExtra("63"));
+
+        /*TextView txtView = (TextView) ((Activity)context).findViewById(R.id.text);
+        txtView.setText("Hello");*/
+
+        /*TextView txtModbusValue = (TextView) findViewById(R.id.modbus_value);
+        txtModbusValue.setText(intent.getStringExtra("63"));*/
+
+        //TextView txtCounter = (TextView) findViewById(R.id.txtCounter);
+        //txtDateTime.setText(time);
+        //txtCounter.setText(counter);
     }
 
     @Override

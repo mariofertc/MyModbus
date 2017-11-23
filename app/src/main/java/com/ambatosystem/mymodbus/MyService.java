@@ -24,6 +24,10 @@ import com.serotonin.modbus4j.ip.IpParameters;
 import com.serotonin.modbus4j.locator.BaseLocator;
 import com.ambatosystem.mymodbus.R;
 
+import java.util.ArrayList;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
+
 //import java.util.logging.Handler;
 //import com.serotonin.modbus4j.ModbusLocator;
 
@@ -39,11 +43,15 @@ public class MyService extends Service {
 //    ModbusFactory modbusFactory = new ModbusFactory();
 //    ModbusMaster master;
     Thread threadModbus;
+    //private ThreadPoolExecutor mThreadPool;
     public ModbusFactory modbusFactory;
     public ModbusMaster master;
 
     public SharedPreferences prefs = null;
     private int preferencesBasicMenu;
+
+    Intent intent;
+    public static final String BROADCAST_ACTION = "com.ambatosystem.mymodbus.reponse";
 
     /*public MyService() {
         super();
@@ -82,6 +90,8 @@ public class MyService extends Service {
         prefs = PreferenceManager.getDefaultSharedPreferences(this);
         prefs.edit().putBoolean("firstrun", true).commit();
         createPool();
+
+        intent = new Intent(BROADCAST_ACTION);
 
         /*mMyServiceRunnable = new MyServiceRunnable();
         timerHandler.postDelayed(mMyServiceRunnable, 5000);*/
@@ -146,7 +156,32 @@ public class MyService extends Service {
         //TODO: Check if there are a thread to run a new.
         if(mMyServiceRunnable == null)
             mMyServiceRunnable = new MyServiceRunnable();
-        threadModbus = new Thread(mMyServiceRunnable);
+
+        //mThreadPool.execute(mMyServiceRunnable);
+        //mThreadPool = new ThreadPoolExecutor(Runtime.getRuntime().availableProcessors(),Runtime.getRuntime().availableProcessors(), 1,TimeUnit.SECONDS);
+
+        if(threadModbus != null){
+            if(threadModbus.isAlive()) {
+                Log.d("TAG", "Esta el pool ya iniciado.");
+                return;
+            }
+            Log.d("TAG", "Thread iniciada pero no esta en alive.");
+            try {
+                closeConnection();
+                threadModbus = null;
+            }catch (Exception e) {
+                Log.e( getClass().getSimpleName(), e.getMessage() );
+                mConnected = false;
+            }
+            return;
+            //threadModbus = new Thread(mMyServiceRunnable);
+            /*threadModbus.start();
+            return;*/
+        }
+        else {
+            threadModbus = new Thread(mMyServiceRunnable);
+        }
+        Log.d("TAG", "Se inicia el hilo.");
         threadModbus.start();
         super.onCreate();
     }
@@ -202,8 +237,8 @@ public class MyService extends Service {
 //
 //handler.removeCallbacksAndMessages(null);
         threadModbus.interrupt();
-        threadModbus.stop();
-        threadModbus.destroy();
+        //threadModbus.stop();
+        //threadModbus.destroy();
         //master.destroy();
         prefs.edit().putBoolean("firstrun", true).commit();
         mConnected = false;
@@ -262,6 +297,18 @@ public class MyService extends Service {
                     mCurrentBatch.addLocator("63",BaseLocator.holdingRegister(1, 63, DataType.TWO_BYTE_INT_SIGNED));
                     mCurrentBatch.addLocator("64",BaseLocator.holdingRegister(1, 64, DataType.TWO_BYTE_INT_SIGNED));
                     BatchResults<String> results = master.send(mCurrentBatch);
+                    intent.putExtra("63",results.getValue("63").toString());
+                    intent.putExtra("64", results.getValue("64").toString());
+                    sendBroadcast(intent);
+                    //results.getDoubleValue("64");
+
+                    //intent.putStringArrayListExtra("response",(ArrayList<String>) results);
+                    //intent.putIntegerArrayListExtra("results",results);
+                    //intent.putParcelableArrayListExtra("res", results);
+
+
+                    /*intent.putExtra("time", new Date().toLocaleString());
+                    intent.putExtra("counter", String.valueOf(++counter));*/
 
 
                     //(TextView)findViewById(R.id.Modbus);
@@ -273,6 +320,8 @@ public class MyService extends Service {
                     Number results_read = master.getValue(BaseLocator.holdingRegister(1, 40001, DataType.TWO_BYTE_INT_SIGNED));*/
                     Log.d("TAG", "Get Modbus Registers." + results );
                     Thread.sleep(1000);
+
+                    //handler.postDelayed(this, 5000);
                 }
                 catch (Exception e) {
                     Log.e( getClass().getSimpleName(), e.getMessage() );
