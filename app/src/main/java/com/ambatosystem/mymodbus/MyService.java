@@ -3,11 +3,15 @@ package com.ambatosystem.mymodbus;
 import android.app.Service;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.res.Resources;
 import android.os.IBinder;
 import android.os.Looper;
 import android.os.Message;
 import android.os.Handler;
+import android.preference.EditTextPreference;
+import android.preference.PreferenceManager;
 import android.util.Log;
+import android.widget.TextView;
 
 import com.serotonin.modbus4j.BatchRead;
 import com.serotonin.modbus4j.BatchResults;
@@ -18,6 +22,7 @@ import com.serotonin.modbus4j.base.SlaveAndRange;
 import com.serotonin.modbus4j.code.DataType;
 import com.serotonin.modbus4j.ip.IpParameters;
 import com.serotonin.modbus4j.locator.BaseLocator;
+import com.ambatosystem.mymodbus.R;
 
 //import java.util.logging.Handler;
 //import com.serotonin.modbus4j.ModbusLocator;
@@ -37,7 +42,9 @@ public class MyService extends Service {
     public ModbusFactory modbusFactory;
     public ModbusMaster master;
 
-    SharedPreferences prefs = null;
+    public SharedPreferences prefs = null;
+    private int preferencesBasicMenu;
+
     /*public MyService() {
         super();
     }*/
@@ -71,7 +78,9 @@ public class MyService extends Service {
     public void onCreate() {
         // start new thread and you your work there
         Log.d("TAG", "Service created.");
-        prefs = getSharedPreferences("com.ambatosystem.mymodbus", MODE_PRIVATE);
+        //prefs = getSharedPreferences("com.ambatosystem.mymodbus", MODE_PRIVATE);
+        prefs = PreferenceManager.getDefaultSharedPreferences(this);
+        prefs.edit().putBoolean("firstrun", true).commit();
         createPool();
 
         /*mMyServiceRunnable = new MyServiceRunnable();
@@ -134,6 +143,7 @@ public class MyService extends Service {
         // The service is no longer used and is being destroyed
     }
     public void createPool(){
+        //TODO: Check if there are a thread to run a new.
         if(mMyServiceRunnable == null)
             mMyServiceRunnable = new MyServiceRunnable();
         threadModbus = new Thread(mMyServiceRunnable);
@@ -142,14 +152,42 @@ public class MyService extends Service {
     }
 
     public void createConnection(){
-        Log.d("TAG", "Creating Modbus Connection.");
         IpParameters tcpParameters = new IpParameters();
-        //tcpParameters.setHost("172.16.5.194");
-        tcpParameters.setHost("192.168.1.6");
-        tcpParameters.setPort(502);
+        //R.layout.modbus_data_fragment
+        //R.xml.preferences_basic_menu()
+        //R.xml.preferences_basic_menu..getSystem().getString(android.R.string.cancel)
 
-        if(master != null)
+        /*Resources res = getResources();
+        preferencesBasicMenu = R.xml.preferences_basic_menu;
+        int i= res.getInteger(preferencesBasicMenu.edit_text_preference_1);*/
+
+
+        //-Preference edit1= findPreference("edit1");
+        //getPersistedInt( )
+
+        //SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
+        //String ip = sharedPreferences.getString("edit_text_preference_1", "default");
+        String ip = prefs.getString("edit_text_preference_1", "default");
+        Integer port = prefs.getInt("pref_key_modbus_port",1);
+
+
+
+
+        //tcpParameters.setHost("172.16.5.194");
+        //tcpParameters.setHost("192.168.1.6");
+        //tcpParameters.setPort(502);
+        tcpParameters.setHost(ip);
+        tcpParameters.setPort(port);
+        Log.d("TAG", "Creating Modbus Connection. IP: " + ip + "port:"+ port);
+
+        if(master != null) {
+            if(master.isConnected()) {
+                Log.d("TAG", "Modbus is connected.");
+                mConnected = true;
+                return;
+            }
             master.destroy();
+        }
         if(modbusFactory == null)
             modbusFactory = new ModbusFactory();
         //ModbusMaster master = modbusFactory.createTcpMaster(tcpParameters, true);
@@ -167,6 +205,7 @@ public class MyService extends Service {
         threadModbus.stop();
         threadModbus.destroy();
         //master.destroy();
+        prefs.edit().putBoolean("firstrun", true).commit();
         mConnected = false;
     }
 
@@ -183,7 +222,7 @@ public class MyService extends Service {
             // This should probably all go somewhere else - and should be done based on
             //  the user selection of modbus connection type.
 
-            Log.d("TAG", "Connection Started.");
+            Log.d("TAG", "Runnable Started.");
 
             // End of parameters that need to be abstracted somewhere better
 
@@ -218,9 +257,16 @@ public class MyService extends Service {
                     mCurrentBatch.addLocator("40009",BaseLocator.holdingRegister(1, 40009, DataType.TWO_BYTE_INT_SIGNED));
                     mCurrentBatch.addLocator("40010",BaseLocator.holdingRegister(1, 40010, DataType.TWO_BYTE_INT_SIGNED));
                     mCurrentBatch.addLocator("40011",BaseLocator.holdingRegister(1, 40011, DataType.TWO_BYTE_INT_SIGNED));*/
-                    mCurrentBatch.addLocator("40063",BaseLocator.holdingRegister(1, 40063, DataType.TWO_BYTE_INT_SIGNED));
-                    mCurrentBatch.addLocator("40064",BaseLocator.holdingRegister(1, 40064, DataType.TWO_BYTE_INT_SIGNED));
+                    //mCurrentBatch.addLocator("40063",BaseLocator.holdingRegister(1, 40063, DataType.TWO_BYTE_INT_SIGNED));
+                    //mCurrentBatch.addLocator("40064",BaseLocator.holdingRegister(1, 40064, DataType.TWO_BYTE_INT_SIGNED));
+                    mCurrentBatch.addLocator("63",BaseLocator.holdingRegister(1, 63, DataType.TWO_BYTE_INT_SIGNED));
+                    mCurrentBatch.addLocator("64",BaseLocator.holdingRegister(1, 64, DataType.TWO_BYTE_INT_SIGNED));
                     BatchResults<String> results = master.send(mCurrentBatch);
+
+
+                    //(TextView)findViewById(R.id.Modbus);
+
+                    //results.getValue(1);
 
                     /*mCurrentBatch.addLocator("40001 sb -1968",
                             BaseLocator.holdingRegister(1, 40000, DataType.TWO_BYTE_INT_SIGNED));
